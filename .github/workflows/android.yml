@@ -2,9 +2,9 @@ name: Android CI
 
 on:
   push:
-    branches: [ "master", "dev", "staging" ]
+    branches: ["dev" ]
   pull_request:
-    branches: [ "master", "dev", "staging" ]
+    branches: ["dev" ]
 
 jobs:
   buildDebug:
@@ -14,8 +14,6 @@ jobs:
     steps:
       - name: Checkout the code to dev branch
         uses: actions/checkout@v2
-        with:
-          repository: dev
           
       - name: Set up JDK
         uses: actions/setup-java@v2
