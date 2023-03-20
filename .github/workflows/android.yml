@@ -34,6 +34,9 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x ./gradlew
 
+      - name: Generate apk debug
+        run: ./gradlew app:assembleDebug --stacktrace
+
   buildAPK:
     needs: [ setupAndroid ]
     name: Generate APK debug
