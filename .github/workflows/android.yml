@@ -44,7 +44,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Upload build outputs (APKs)
-          uses: actions/upload-artifact@v3
-          with:
-            name: build-outputs
-            path: app/build/outputs
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-outputs
+          path: app/build/outputs
