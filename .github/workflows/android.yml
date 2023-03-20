@@ -39,7 +39,7 @@ jobs:
         
   #STEP 2 : Upload the Artifact
   upload:
-    needs: [ setupAndroid, buildAPK ]
+    needs: [ setupAndroid ]
     name: Upload the apk to artifact
     runs-on: ubuntu-latest
 
