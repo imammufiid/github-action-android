@@ -7,7 +7,7 @@ on:
 jobs:
   buildDebug:
     name: Setup Environment and build
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     
     steps:
       - name: Checkout the code to dev branch
@@ -41,10 +41,10 @@ jobs:
   upload:
     needs: [ buildDebug ]
     name: Upload the apk to artifact
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     steps:
-      - name: Upload apk
-        uses: actions/upload-artifact@v2
-        with:
-          name: app-debug
-          path: app/build/outputs/apk/app-debug.apk
+      - name: Upload build outputs (APKs)
+          uses: actions/upload-artifact@v3
+          with:
+            name: build-outputs
+            path: app/build/outputs
