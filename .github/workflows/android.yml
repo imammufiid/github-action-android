@@ -1,0 +1,54 @@
+name: Android CI
+
+on:
+  push:
+    branches: [ "master", "dev", "staging" ]
+  pull_request:
+    branches: [ "master", "dev", "staging" ]
+
+jobs:
+  buildDebug:
+    name: Setup Environment and build
+    runs-on: self-hosted
+    
+    steps:
+      - name: Checkout the code to dev branch
+        uses: actions/checkout@v2
+        with:
+          repository: dev
+          
+      - name: Set up JDK
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'zulu'
+          java-version: '11'
+      
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v2
+        
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+            
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
+        
+      - name: Generate apk debug
+        run: ./gradlew app:assembleDebug --stacktrace
+        
+  #STEP 2 : Upload the Artifact
+  upload:
+    needs: [ buildDebug ]
+    name: Upload the apk to artifact
+    runs-on: self-hosted
+    steps:
+      - name: Upload apk
+        uses: actions/upload-artifact@v2
+        with:
+          name: app-debug
+          path: app/build/outputs/apk/app-debug.apk
