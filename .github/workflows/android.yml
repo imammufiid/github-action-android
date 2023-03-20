@@ -5,7 +5,7 @@ on:
     branches: [ "dev" ]
 
 jobs:
-  buildDebug:
+  setupAndroid:
     name: Setup Environment and build
     runs-on: ubuntu-latest
     
@@ -33,18 +33,27 @@ jobs:
             
       - name: Make gradlew executable
         run: chmod +x ./gradlew
-        
+
+  buildAPK:
+    needs: [ setupAndroid ]
+    name: Generate APK debug
+    runs-on: ubuntu-latest
+
+    steps:
       - name: Generate apk debug
         run: ./gradlew app:assembleDebug --stacktrace
         
   #STEP 2 : Upload the Artifact
   upload:
-    needs: [ buildDebug ]
+    needs: [ setupAndroid, buildAPK ]
     name: Upload the apk to artifact
     runs-on: ubuntu-latest
+
     steps:
-      - name: Upload build outputs (APKs)
-        uses: actions/upload-artifact@v3
+      - name: Build APK
+        run: bash ./gradlew assembleDebug --stacktrace
+      - name: Upload APK
+        uses: actions/upload-artifact@v1
         with:
-          name: build-outputs
-          path: app/build/outputs
+          name: apk
+          path: app/build/outputs/apk/debug/app-debug.apk
