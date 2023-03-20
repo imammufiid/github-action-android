@@ -36,15 +36,6 @@ jobs:
 
       - name: Generate apk debug
         run: ./gradlew app:assembleDebug --stacktrace
-
-  buildAPK:
-    needs: [ setupAndroid ]
-    name: Generate APK debug
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Generate apk debug
-        run: ./gradlew app:assembleDebug --stacktrace
         
   #STEP 2 : Upload the Artifact
   upload:
