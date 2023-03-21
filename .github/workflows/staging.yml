@@ -109,7 +109,7 @@ jobs:
         uses: actions/upload-artifact@v1
         with:
           name: apk-testing
-          path: app/build/outputs/apk/debug/app-debug.apk
+          path: app/build/outputs/apk/testing/app-testing.apk
 
   deployAPKFirebase:
     needs: [unitTest, uploadAPK]
@@ -143,12 +143,6 @@ jobs:
 
       - name: Build APK
         run: ./gradlew assembleStaging --stacktrace
-
-      - name: Upload APK
-        uses: actions/upload-artifact@v1
-        with:
-          name: apk-testing
-          path: app/build/outputs/apk/debug/app-debug.apk
 
       - name: Deploy APK
         run: ./gradlew appDistributionUploadStaging
