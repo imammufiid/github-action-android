@@ -1,0 +1,148 @@
+name: Testing CI
+
+on:
+  push:
+    branches: [ "staging" ]
+
+jobs:
+  #STEP 0 : Unit Test
+  unitTest:
+    name: Setup Environment and build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the code to dev branch
+        uses: actions/checkout@v3
+
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '11'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v2
+
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
+
+      - name: Running Unit Test
+        run: ./gradlew testStagingUnitTest
+
+  #STEP 1 : Build APK
+  buildAPK:
+    needs: [unitTest]
+    name: Build APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout the code to dev branch
+        uses: actions/checkout@v3
+
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '11'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v2
+
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
+
+      - name: Generate apk debug
+        run: ./gradlew app:assembleStaging --stacktrace
+
+  #STEP 2 : Upload the Artifact
+  uploadAPK:
+    needs: [unitTest, buildAPK]
+    name: Upload the apk to artifact
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout the code to dev branch
+        uses: actions/checkout@v3
+
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '11'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v2
+
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
+
+      - name: Build APK
+        run: ./gradlew assembleStaging --stacktrace
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v1
+        with:
+          name: apk-testing
+          path: app/build/outputs/apk/debug/app-debug.apk
+
+  deployAPKFirebase:
+    needs: [unitTest, uploadAPK]
+    name: Deploy APK To Firebase App Distribution
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout the code to dev branch
+        uses: actions/checkout@v3
+
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '11'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v2
+
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
+
+      - name: Build APK
+        run: ./gradlew assembleStaging --stacktrace
+
+      - name: Upload APK
+        run: ./gradlew appDistributionUploadStaging
