@@ -109,7 +109,7 @@ jobs:
         uses: actions/upload-artifact@v1
         with:
           name: apk-testing
-          path: app/build/outputs/apk/testing/app-testing.apk
+          path: app/build/outputs/apk/staging/
 
   deployAPKFirebase:
     needs: [unitTest, uploadAPK]
